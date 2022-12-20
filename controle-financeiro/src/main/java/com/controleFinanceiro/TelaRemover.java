@@ -39,7 +39,7 @@ public class TelaRemover extends Tela{
         final JtextFieldOnlyNumber dadoCpfCnpj = new JtextFieldOnlyNumber(9, 14);
 
         String codCompras[] = {"ID Compra", "ID Transação"};
-        JComboBox cbCompra = new JComboBox(codCompras);  
+        final JComboBox cbCompra = new JComboBox(codCompras);  
         final JTextField idCompra = new JTextField(8);
 
         JLabel transacao = new JLabel("Código:");
@@ -55,6 +55,7 @@ public class TelaRemover extends Tela{
 
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 if (dadoCpfCnpj.getText().equals("")){
                     JOptionPane.showMessageDialog(null, "O campo deve ser preenchido!");
                 }
@@ -76,16 +77,29 @@ public class TelaRemover extends Tela{
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Boolean tentativa = false;
+
                 if (idCompra.getText().equals("")){
                     JOptionPane.showMessageDialog(null, "O campo deve ser preenchido!");
                 }
-                else if (tentativa){
-                    JOptionPane.showMessageDialog(null, "A compra foi removido com sucesso!");
-                    idCompra.setText("");
-                }
-                else{
-                    JOptionPane.showMessageDialog(null, "Ocorreu algum problema ao remover a compra!","Erro", JOptionPane.ERROR_MESSAGE);
+                else {
+
+                    Boolean tentativa;
+                    SQLManager sql = SQLManager.getInstance();
+
+                    if (cbCompra.getSelectedItem().equals("ID Compra")){
+                        tentativa = sql.removerCompra(new Integer(idCompra.getText()), "ID");
+                    }
+                    else{
+                        tentativa = sql.removerCompra(new Integer(idCompra.getText()), "ID_transacao");
+                    }
+
+                    if (tentativa){
+                        JOptionPane.showMessageDialog(null, "A compra foi removido com sucesso!");
+                        idCompra.setText("");
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(null, "Ocorreu algum problema ao remover a compra!","Erro", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }});
 

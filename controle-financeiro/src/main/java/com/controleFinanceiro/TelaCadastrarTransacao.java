@@ -2,6 +2,9 @@ package com.controleFinanceiro;
 
 import javax.swing.*;
 import javax.swing.text.MaskFormatter;
+
+import com.SQLManager.SQLManager;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,14 +33,15 @@ public class TelaCadastrarTransacao  extends Tela{
         panelCorpo.setLayout(new GridLayout(0, 1, 0, 1));
         panelCorpo.setPreferredSize(new Dimension(10, 200));
 
-        JLabel nome = new JLabel("Nome:");
-        final JTextField nomeCadastar = new JTextField(20);
+        JLabel  cpf_cnpj = new JLabel("CPF/CNPJ:");
+        final JtextFieldOnlyNumber dado_cpf_cnpj = new JtextFieldOnlyNumber(9, 14);
+
         JLabel idT = new JLabel("Código Transação:");
         final JTextField idTransacao = new JTextField(8);
 
         JLabel tipo = new JLabel("Tipo:");
-        String tipoPessoa[] = {"C", "F"};
-        JComboBox cbTipoPessoa = new JComboBox(tipoPessoa);
+        final String tipoPessoa[] = {"C", "F"};
+        final JComboBox cbTipoPessoa = new JComboBox(tipoPessoa);
 
         MaskFormatter formatoData;
         try {
@@ -59,27 +63,34 @@ public class TelaCadastrarTransacao  extends Tela{
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Boolean tentativa = true;
-                if (idTransacao.getText().equals("") || nomeCadastar.getText().equals("") || valorTotal.getText().equals("") || dataTransacao.getText().equals("  /  /    ")){
+                
+                if (idTransacao.getText().equals("") || dado_cpf_cnpj.getText().equals("") || valorTotal.getText().equals("") || dataTransacao.getText().equals("  /  /    ")){
                     JOptionPane.showMessageDialog(null, "Todos campo deve ser preenchido!");
                 }
-                else if (tentativa){
+                else{ 
+                    DataInterpret dataConv = new DataEntradaSQL();
+                    SQLManager sql = SQLManager.getInstance();
+
+                    Boolean tentativa = sql.cadastrarTransacao(dado_cpf_cnpj.getText(), tipoPessoa[cbTipoPessoa.getSelectedIndex()], new Float(valorTotal.getText()), dataConv.data_formatada(dataTransacao.getText()));
+
+                    if (tentativa){
                     JOptionPane.showMessageDialog(null, "A transação foi cadastrada com sucesso!");
-                    idTransacao.setText("");
-                    nomeCadastar.setText("");
-                    valorTotal.setText(""); 
-                    dataTransacao.setText("");
-                }
-                else{
-                    JOptionPane.showMessageDialog(null, "Ocorreu algum problema ao cadastar a transação!","Erro", JOptionPane.ERROR_MESSAGE);
+                        idTransacao.setText("");
+                        dado_cpf_cnpj.setText("");
+                        valorTotal.setText(""); 
+                        dataTransacao.setText("");
+                    }
+                    else{
+                     JOptionPane.showMessageDialog(null, "Ocorreu algum problema ao cadastar a transação!","Erro", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }});
 
         panelTitulo.add(img);
         panelTitulo.add(titulo);
         
-        panelCorpo1.add(nome);
-        panelCorpo1.add(nomeCadastar);
+        panelCorpo1.add(cpf_cnpj);
+        panelCorpo1.add(dado_cpf_cnpj);
         panelCorpo1.add(idT);
         panelCorpo1.add(idTransacao);
 

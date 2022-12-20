@@ -5,6 +5,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.controleFinanceiro.DataInterpret;
+import com.controleFinanceiro.DataSaidaSQL;
+
 public class SQLManager {
     private Connection conexao = null;
     public static SQLManager Manager;
@@ -63,25 +66,28 @@ public class SQLManager {
         return retorno;
     }
 
-    public void cadastrarTransacao(String cv, String Tipo, float Valor, String data){
+    public Boolean cadastrarTransacao(String cv, String Tipo, float Valor, String data){
+        boolean retorno = false;
         bancoConnect();
         try {
            ResultSet rsTeste = this.conexao.createStatement().executeQuery("SELECT CPF_CNPJ FROM clientes_fornecedores WHERE CPF_CNPJ LIKE "+cv+";");
             String querry = ("INSERT INTO transacoes SELECT MAX(ID_transacao) + 1, '" +  cv + "', '" + Tipo + "', " + Valor + ", " + data + " FROM transacoes;");
             int rsPesquisa = this.conexao.createStatement().executeUpdate(querry);
             System.out.println("Cadastrado com sucesso!");
+            retorno = true;
         } catch (SQLException e) {
             System.out.println("Cliente/Fornecedor não cadastrado!");
             throw new RuntimeException(e);
         }
         bancoClose();
 
+        return retorno;
     }
 
-    public Boolean cadastrarCompra(int codT, int codP, int produto, int quant, float valor){
+    public Boolean cadastrarCompra(int codCompra, int codT, int codP, int quant, float valor){
         boolean retorno = false;
         bancoConnect();
-        String querry = ("INSERT INTO compras VALUES ('" + codT + "', '" +  codP + "', '" +  produto + "', '" + quant +"', '" + valor +"');");
+        String querry = ("INSERT INTO compras VALUES ('" + codCompra + "', '" +  codT + "', '" +  codP + "', '" + quant +"', '" + valor +"');");
         try {
             int rsPesquisa = this.conexao.createStatement().executeUpdate(querry);
             System.out.println("Cadastrado com sucesso!");
@@ -146,6 +152,23 @@ public class SQLManager {
         return retorno;
     }
 
+    public Boolean removerCompra(int idCompra, String coluna){
+        boolean retorno = false;
+        bancoConnect();
+        String querry = ("DELETE FROM compras WHERE"+ coluna + " = "+ idCompra+";");
+        try {
+            int rsPesquisa = this.conexao.createStatement().executeUpdate(querry);
+            System.out.println("Removido com sucesso!");
+            retorno = true;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        bancoClose();
+
+        return retorno;
+    }
+
     //Pesquisas gerais
     public void mostrarTransacoes(){
         bancoConnect();
@@ -153,7 +176,8 @@ public class SQLManager {
             ResultSet rsPesquisa = this.conexao.createStatement().executeQuery("SELECT t.ID_transacao, cf.Nome, t.Valor_total, t.Data, t.Tipo FROM transacoes AS t INNER JOIN clientes_fornecedores AS cf ON t.Comprador_Vendedor = cf.CPF_CNPJ ORDER BY t.Data");
             System.out.println("     Transações");
             while (rsPesquisa.next()){
-                System.out.println("ID: " + rsPesquisa.getString("ID_transacao") + " || Nome: " + rsPesquisa.getString("Nome") + " Tipo: " +rsPesquisa.getString("Tipo")+" || Valor: " + rsPesquisa.getString("Valor_total") + " R$ || Data: " + rsPesquisa.getString("Data"));
+                DataInterpret dataConv = new DataSaidaSQL();
+                System.out.println("ID: " + rsPesquisa.getString("ID_transacao") + " || Nome: " + rsPesquisa.getString("Nome") + " Tipo: " +rsPesquisa.getString("Tipo")+" || Valor: " + rsPesquisa.getString("Valor_total") + " R$ || Data: " + dataConv.data_formatada(rsPesquisa.getString("Data")));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -173,6 +197,7 @@ public class SQLManager {
         }
         bancoClose();
     }
+
     public void mostrarClientes(){
         bancoConnect();
         try {
@@ -186,6 +211,7 @@ public class SQLManager {
         }
         bancoClose();
     }
+
     public void mostrarFornecedores(){
         bancoConnect();
         try {

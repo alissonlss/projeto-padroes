@@ -28,12 +28,15 @@ public class ButtonActionConsulta implements ActionListener {
 
         if (getName() == "Última Semana"){
             // Apresenta a busca ou apresenta mensagem
+            JOptionPane.showMessageDialog(null, "Ocorreu algum problema na tentativa de busca!","Erro", JOptionPane.ERROR_MESSAGE);
         }
         else if (getName() == "Último Mês"){
             // Apresenta a busca ou apresenta mensagem
+            JOptionPane.showMessageDialog(null, "Ocorreu algum problema na tentativa de busca!","Erro", JOptionPane.ERROR_MESSAGE);
         }
         else if (getName() == "Último Ano"){
             // Apresenta a busca ou apresenta mensagem
+            JOptionPane.showMessageDialog(null, "Ocorreu algum problema na tentativa de busca!","Erro", JOptionPane.ERROR_MESSAGE);
         }
         else if (getName() == "Clientes"){
             sql.mostrarClientes();

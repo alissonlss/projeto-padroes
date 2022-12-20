@@ -1,6 +1,9 @@
 package com.controleFinanceiro;
 
 import javax.swing.*;
+
+import com.SQLManager.SQLManager;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,8 +37,8 @@ public class TelaCadastrarCompra extends Tela{
         JLabel idP = new JLabel("Código Produto:");
         final JTextField idProduto = new JTextField(8);
 
-        JLabel nome = new JLabel("Nome:");
-        final JTextField nomeProduto = new JTextField(12);
+        JLabel compra = new JLabel("Código Compra:");
+        final JTextField idCompra = new JTextField(12);
 
         JLabel quantidade = new JLabel("Quantidade:");
         final JTextField quantidadeProduto = new JTextField(4);
@@ -48,20 +51,27 @@ public class TelaCadastrarCompra extends Tela{
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                Boolean tentativa = false;
-                if (nomeProduto.getText().equals("") || idTransacao.getText().equals("")  || idProduto.getText().equals("")  || precoProduto.getText().equals("") || quantidadeProduto.getText().equals("")){
+                
+                if (idCompra.getText().equals("") || idTransacao.getText().equals("")  || idProduto.getText().equals("")  || precoProduto.getText().equals("") || quantidadeProduto.getText().equals("")){
                     JOptionPane.showMessageDialog(null, "Todos campo deve ser preenchido!");
                 }
-                else if (tentativa){
-                    JOptionPane.showMessageDialog(null, "A compra foi cadastrada com sucesso!");
-                    nomeProduto.setText("");
-                    idTransacao.setText("");
-                    idProduto.setText("");
-                    precoProduto.setText("");
-                    quantidadeProduto.setText("");
-                }
-                else{
-                    JOptionPane.showMessageDialog(null, "Ocorreu algum problema ao cadastar a compra!","Erro", JOptionPane.ERROR_MESSAGE);
+                else {
+                    
+                    SQLManager sql = SQLManager.getInstance();
+
+                    Boolean tentativa = sql.cadastrarCompra(new Integer(idCompra.getText()), new Integer(idTransacao.getText()), new Integer(idProduto.getText()), new Integer(quantidadeProduto.getText()), new Float(precoProduto.getText()));
+                    
+                    if (tentativa){
+                        JOptionPane.showMessageDialog(null, "A compra foi cadastrada com sucesso!");
+                        idCompra.setText("");
+                        idTransacao.setText("");
+                        idProduto.setText("");
+                        precoProduto.setText("");
+                        quantidadeProduto.setText("");
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(null, "Ocorreu algum problema ao cadastar a compra!","Erro", JOptionPane.ERROR_MESSAGE);
+                    }
                 }
             }});
 
@@ -73,8 +83,8 @@ public class TelaCadastrarCompra extends Tela{
         panelCorpo1.add(idP);
         panelCorpo1.add(idProduto);
 
-        panelCorpo2.add(nome);
-        panelCorpo2.add(nomeProduto);
+        panelCorpo2.add(compra);
+        panelCorpo2.add(idCompra);
         panelCorpo2.add(quantidade);
         panelCorpo2.add(quantidadeProduto);
         panelCorpo2.add(preco);
