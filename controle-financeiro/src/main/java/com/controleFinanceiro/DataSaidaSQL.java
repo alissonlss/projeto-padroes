@@ -6,7 +6,7 @@ public class DataSaidaSQL extends DataInterpret{
     public String data_formatada(String date){
         return dia(date)+"/"+mes(date)+"/"+ano(date);
     }
-
+    
     @Override
     public  String dia(String data){
         return data.substring(8, 10);
@@ -16,7 +16,7 @@ public class DataSaidaSQL extends DataInterpret{
     public  String mes(String data){
         return data.substring(5, 7);
     }
-    
+
     @Override
     public String ano(String data){
         return data.substring(0, 4);

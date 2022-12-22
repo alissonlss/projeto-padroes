@@ -107,6 +107,5 @@ public class TelaCadastrarCompra extends Tela{
     @Override
     protected JPanel getPanel() {
         return panelCadastrarCompra;
-    }
-    
+    }   
 }

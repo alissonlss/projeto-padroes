@@ -5,12 +5,18 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.swing.*;
+import java.awt.*;
+
+import com.controleFinanceiro.BotoesRodape;
 import com.controleFinanceiro.DataInterpret;
 import com.controleFinanceiro.DataSaidaSQL;
+import com.controleFinanceiro.Janela;
 
 public class SQLManager {
     private Connection conexao = null;
-    public static SQLManager Manager;
+    private static SQLManager Manager;
+    private JPanel apresentacaoConsulta;
 
     private SQLManager(){
         System.out.println("SQLManager Iniciado!");
@@ -175,10 +181,27 @@ public class SQLManager {
         try {
             ResultSet rsPesquisa = this.conexao.createStatement().executeQuery("SELECT t.ID_transacao, cf.Nome, t.Valor_total, t.Data, t.Tipo FROM transacoes AS t INNER JOIN clientes_fornecedores AS cf ON t.Comprador_Vendedor = cf.CPF_CNPJ ORDER BY t.Data");
             System.out.println("     Transações");
+
+            String [] colunas = {"ID", "Nome", "Tipo", "Valor", "Data"};
+            int cont = 0;
+            Object [][] dados = new Object [25][5];
+
             while (rsPesquisa.next()){
                 DataInterpret dataConv = new DataSaidaSQL();
-                System.out.println("ID: " + rsPesquisa.getString("ID_transacao") + " || Nome: " + rsPesquisa.getString("Nome") + " Tipo: " +rsPesquisa.getString("Tipo")+" || Valor: " + rsPesquisa.getString("Valor_total") + " R$ || Data: " + dataConv.data_formatada(rsPesquisa.getString("Data")));
+                System.out.println("ID: " + rsPesquisa.getString("ID_transacao") + " || Nome: " + rsPesquisa.getString("Nome") + " Tipo: " + rsPesquisa.getString("Tipo") + " || Valor: " + rsPesquisa.getString("Valor_total") + " R$ || Data: " + dataConv.data_formatada(rsPesquisa.getString("Data")));
+            
+                String id = rsPesquisa.getString("ID_transacao");
+                String nome = rsPesquisa.getString("Nome");
+                String tipo =  rsPesquisa.getString("Tipo");
+                String valor = "R$ " + rsPesquisa.getString("Valor_total");
+                String data = dataConv.data_formatada(rsPesquisa.getString("Data"));
+                Object [] aux = {id, nome, tipo, valor, data};
+
+                dados[cont] = aux;
+
+                cont++;
             }
+            apresentarConsulta(colunas, dados, "Lista de Produtos");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -189,9 +212,24 @@ public class SQLManager {
         try {
             ResultSet rsPesquisa = this.conexao.createStatement().executeQuery("SELECT * FROM PRODUTOS");
             System.out.println("     Produtos");
+
+            String [] colunas = {"ID", "Nome", "Preço"};
+            int cont = 0;
+            Object [][] dados = new Object [25][3];
+
             while (rsPesquisa.next()){
                 System.out.println("ID: "+rsPesquisa.getString("ID_Produto")+" Nome: " + rsPesquisa.getString("Nome") + " Preço: " + rsPesquisa.getString("Preco") + " R$");
+
+                String id = rsPesquisa.getString("ID_Produto");
+                String nome = rsPesquisa.getString("Nome");
+                String preco = "R$ " + rsPesquisa.getString("Preco");
+                Object [] aux = {id, nome, preco};
+
+                dados[cont] = aux;
+
+                cont++;
             }
+            apresentarConsulta(colunas, dados, "Lista de Produtos");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -203,9 +241,23 @@ public class SQLManager {
         try {
             ResultSet rsPesquisa = this.conexao.createStatement().executeQuery("SELECT * FROM clientes_fornecedores WHERE Tipo LIKE 'C' ORDER BY Nome");
             System.out.println("     Clientes");
+
+            String [] colunas = {"CPF_CNPJ", "Nome"};
+            int cont = 0;
+            Object [][] dados = new Object [25][2];
+
             while (rsPesquisa.next()){
                 System.out.println(rsPesquisa.getString("Tipo_chave") +": " + rsPesquisa.getString("CPF_CNPJ") + " || Nome: " + rsPesquisa.getString("Nome"));
+
+                String cpf_cnpj = rsPesquisa.getString("CPF_CNPJ");
+                String nome = rsPesquisa.getString("Nome");
+                Object [] aux = {cpf_cnpj, nome};
+
+                dados[cont] = aux;
+
+                cont++;
             }
+            apresentarConsulta(colunas, dados, "Lista de Clientes");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -217,9 +269,23 @@ public class SQLManager {
         try {
             ResultSet rsPesquisa = this.conexao.createStatement().executeQuery("SELECT * FROM clientes_fornecedores WHERE Tipo LIKE 'F' ORDER BY Nome");
             System.out.println("     Fornecedores");
+
+            String [] colunas = {"CPF_CNPJ", "Nome"};
+            int cont = 0;
+            Object [][] dados = new Object [25][2];
+
             while (rsPesquisa.next()){
                 System.out.println(rsPesquisa.getString("Tipo_chave") +": " + rsPesquisa.getString("CPF_CNPJ") + " || Nome: " + rsPesquisa.getString("Nome"));
+                
+                String cpf_cnpj = rsPesquisa.getString("CPF_CNPJ");
+                String nome = rsPesquisa.getString("Nome");
+                Object [] aux = {cpf_cnpj, nome};
+
+                dados[cont] = aux;
+
+                cont++;
             }
+            apresentarConsulta(colunas, dados, "Lista de Fornecedores");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -304,7 +370,31 @@ public class SQLManager {
         } catch (SQLException e) {
             System.out.println("Erro ao conectar com o banco: " + e.getMessage());
         }
-        }
+    }
+
+    // apresentação gráfica
+    public void apresentarConsulta(String[] colunas, Object[][] dados, String titulo){
+        this.apresentacaoConsulta = new JPanel();
+        apresentacaoConsulta.setLayout(new GridLayout(0,1));
+        
+        JLabel nomeTitulo = new JLabel(titulo);
+        nomeTitulo.setFont(new Font("Serif", Font.BOLD, 30));
+        BotoesRodape rodape = new BotoesRodape();
+
+        JPanel cabecalho = new JPanel();
+        cabecalho.add(nomeTitulo);
+
+        JTable tabela = new JTable(dados, colunas);
+        JScrollPane barraRolagem = new JScrollPane(tabela);
+        JScrollPane consulta = new JScrollPane(barraRolagem);
+
+       apresentacaoConsulta.add(cabecalho);
+        apresentacaoConsulta.add(consulta);
+        apresentacaoConsulta.add(rodape.getRodape());
+
+        Janela janela = Janela.getInstancia();
+        janela.setConteudoJanela(apresentacaoConsulta);
+    }
 
     //Singleton
     public static SQLManager getInstance(){
